@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+
+class VideoScreen extends StatefulWidget {
+  final String label;
+
+  const VideoScreen({super.key, required this.label});
+
+  @override
+  State<VideoScreen> createState() => _VideoScreenState();
+}
+
+class _VideoScreenState extends State<VideoScreen> {
+  late VideoPlayerController _controller;
+
+  final Map<String, String> videoUrls = {
+    // 🐻 Animals
+    "Bear": "https://firebasestorage.googleapis.com/v0/b/isl-kids-app-e5e12.firebasestorage.app/o/signs%2FAlphabets%2FA.mp4?alt=media&token=12c2d793-8c5d-4847-8826-09f6a88eddc4",
+    "Crocodile": "https://firebasestorage.googleapis.com/v0/b/isl-kids-app-e5e12.firebasestorage.app/o/signs%2FAnimals%2FCrocodile.mp4?alt=media&token=7f4ed7df-5834-4b07-bdec-cf8cc79efff7",
+    "Deer": "https://firebasestorage.googleapis.com/v0/b/isl-kids-app-e5e12.firebasestorage.app/o/signs%2FAnimals%2FDeer.mp4?alt=media&token=9284c8d5-c02d-4c62-8b5b-a27f197a15fa",
+    "Elephant": "",
+    "Giraffe": "",
+    "Lion": "",
+
+    // 🥕 Vegetables
+    "Brinjal": "",
+    "Cabbage": "",
+    "Carrot": "",
+    "Cauliflower": "",
+    "Onion": "",
+    "Radish": "",
+
+    // 😊 Feelings
+    "Fever": "",
+    "Hello": "",
+    "Hug": "",
+    "Injury": "",
+    "Myabe": "",
+    "Thank you": "",
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    final url = videoUrls[widget.label];
+
+    _controller = VideoPlayerController.networkUrl(
+      Uri.parse(url != null && url.isNotEmpty
+          ? url
+          : "https://samplelib.com/lib/preview/mp4/sample-5s.mp4"), // fallback
+    )..initialize().then((_) {
+        setState(() {});
+        _controller.play();
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.label),
+        backgroundColor: Colors.teal.shade700,
+      ),
+      body: Center(
+        child: _controller.value.isInitialized
+            ? AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: VideoPlayer(_controller),
+              )
+            : const CircularProgressIndicator(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _controller.value.isPlaying
+                ? _controller.pause()
+                : _controller.play();
+          });
+        },
+        child: Icon(
+          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+        ),
+      ),
+    );
+  }
+}
